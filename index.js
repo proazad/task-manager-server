@@ -6,7 +6,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 app.use(
     cors({
-        origin: ["http://localhost:5173"],
+        // origin: ["http://localhost:5173"],
+        origin: ["https://taskman.surge.sh/"],
         credentials: true,
     })
 );
@@ -42,7 +43,15 @@ async function run() {
         app.get("/users", async (req, res) => {
             const result = await userCollection.find().toArray();
             res.send(result);
-        })
+        });
+
+        //Get Single User 
+        app.get("/users/:email", async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email }
+            const result = await userCollection.findOne(filter);
+            res.send(result);
+        });
 
         // Create New Task API 
         app.post("/task", async (req, res) => {
@@ -54,6 +63,14 @@ async function run() {
         // Get All Task 
         app.get("/task", async (req, res) => {
             const result = await taskCollection.find().toArray();
+            res.send(result);
+        });
+        // Get All Task By  User ID
+        app.get("/task/:id", async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const filter = { user: id }
+            const result = await taskCollection.find(filter).toArray();
             res.send(result);
         });
 
