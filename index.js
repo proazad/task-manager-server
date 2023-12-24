@@ -6,8 +6,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 app.use(
     cors({
-        // origin: ["http://localhost:5173"],
-        origin: ["https://taskman.surge.sh/"],
+        origin: ["http://localhost:5173"],
+        // origin: ["https://taskman.surge.sh/"],
         credentials: true,
     })
 );
@@ -61,17 +61,42 @@ async function run() {
         });
 
         // Get All Task 
-        app.get("/task", async (req, res) => {
+        app.get("/tasks", async (req, res) => {
             const result = await taskCollection.find().toArray();
             res.send(result);
         });
+
         // Get All Task By  User ID
-        app.get("/task/:id", async (req, res) => {
-            const id = req.params.id;
-            console.log(id);
-            const filter = { user: id }
+        app.get("/tasks/:userid", async (req, res) => {
+            const uid = req.params.userid;
+            const filter = { user: uid }
             const result = await taskCollection.find(filter).toArray();
             res.send(result);
+        });
+
+        //Get Single Task by Task ID 
+        app.get("/task/:id", async (req, res) => {
+            const taskid = req.params.id;
+            const query = { _id: new ObjectId(taskid) }
+            const result = await taskCollection.findOne(query);
+            res.send(result);
+        });
+
+        //Update Single Task 
+        app.patch("/task/:id", async (req, res) => {
+            const id = req.params.id;
+            const updateTask = req.body;
+            const filter = { _id: new ObjectId(id) }
+            const UpdateDoc = {
+                $set: {
+                    title: updateTask.title,
+                    deadline: updateTask.deadline,
+                    priority: updateTask.priority,
+                    description: updateTask.description,
+                }
+            }
+            const result = await taskCollection.updateOne(filter, UpdateDoc);
+            res.send(result)
         });
 
 
